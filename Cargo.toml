@@ -1,6 +1,6 @@
 [package]
 name = "asterisk-cli"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
 description = "A lightweight command-line tool for rapidly testing API endpoints"
 license = "MIT"

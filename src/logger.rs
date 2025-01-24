@@ -9,20 +9,6 @@ impl Logger {
         Logger { verbose }
     }
 
-    pub fn info(&self, message: &str) {
-        println!("{} {}", "✓".green(), message);
-    }
-
-    pub fn debug(&self, message: &str) {
-        if self.verbose {
-            println!("{} {}", "DEBUG".blue().bold(), message);
-        }
-    }
-
-    pub fn error(&self, message: &str) {
-        eprintln!("{} {}", "✗".red(), message);
-    }
-
     pub fn response(&self, status: u16, timing: &str, body: &str) {
         let status_color = match status {
             200..=299 => status.to_string().green(),
