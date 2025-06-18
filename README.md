@@ -1,6 +1,6 @@
 # Asterisk: Universal API Testing CLI
 
-A lightweight command-line tool for rapidly testing API endpoints with a clean and simple interface.
+A lightweight command-line tool for rapidly testing API endpoints with project-level configuration support.
 
 ## Installation
 
@@ -8,48 +8,79 @@ A lightweight command-line tool for rapidly testing API endpoints with a clean a
 cargo install asterisk-cli
 ```
 
-## Usage
+## Quick Start
 
 ```bash
-asterisk <endpoint> <method> [options]
-```
-
-### Arguments
-- `endpoint`: Endpoint name or path (e.g., "users" or "api/users")
-- `method`: HTTP method (GET, POST, PUT, DELETE, PATCH)
-
-### Options
-- `-b, --body <json>`: Request body as JSON string
-- `-H, --headers <headers>`: Custom headers (format: "key1:value1,key2:value2")
-- `-t, --token <token>`: Bearer token for authentication
-- `-u, --url <url>`: Base URL (default: http://localhost:3000)
-- `-v, --verbose`: Enable detailed output
-
-### Examples
-
-```bash
-# Basic GET request
+# Basic request
 asterisk users get
 
-# POST with JSON body
-asterisk users post -b '{"name":"John","email":"john@example.com"}'
+# Initialize project configuration
+asterisk config init
 
-# Authenticated request
-asterisk protected get -t "your-token-here"
-
-# Custom headers and base URL
-asterisk users get -H "Accept:application/json,API-Key:123" -u "http://api.example.com"
+# Use environment profiles
+asterisk users get --profile staging
 ```
+
+## Configuration
+
+Create an `asterisk.config` file in your project:
+
+```toml
+default_profile = "dev"
+
+[profiles.dev]
+url = "http://localhost:3000"
+token = "$DEV_API_KEY"
+
+[profiles.staging]
+url = "https://staging-api.example.com"
+token = "$STAGING_TOKEN"
+
+[profiles.production]
+url = "https://api.example.com"
+token = "$PROD_API_KEY"
+```
+
+## Usage
+
+### Basic Commands
+```bash
+# Use default profile from config
+asterisk users get
+
+# Switch environments
+asterisk users get --profile production
+
+# POST with body
+asterisk users post -b '{"name":"John"}'
+
+# Override config settings
+asterisk users get -u "http://localhost:8080"
+```
+
+### Configuration Management
+```bash
+# Create config template
+asterisk config init
+
+# View current settings
+asterisk config show
+asterisk config show --profile staging
+```
+
+### Options
+- `-p, --profile <name>`: Use specific environment profile
+- `-u, --url <url>`: Override base URL
+- `-t, --token <token>`: Override bearer token
+- `-b, --body <json>`: Request body as JSON
+- `-H, --headers <headers>`: Custom headers (`key:value,key2:value2`)
+- `-v, --verbose`: Detailed output
 
 ## Features
 
-- 🚀 Simple and intuitive interface
-- 📝 Support for JSON payloads
-- 🔒 Authentication handling
-- ⚡ Request timing information
-- 🎨 Beautiful terminal output
-
-## Why Asterisk?
-
-Asterisk is designed to be a straightforward, no-nonsense API testing tool. It focuses on doing one thing well: making HTTP requests with minimal friction. Whether you're testing a local development server or a production API, Asterisk provides a clean and efficient interface for your API testing needs.
+- 🚀 **Simple CLI** - Clean, intuitive interface
+- ⚙️ **Project Config** - TOML-based configuration with environment profiles
+- 🔒 **Secure Tokens** - Environment variable references (`$API_KEY`)
+- ⚡ **Fast** - Request timing and performance metrics
+- 🎨 **Beautiful Output** - Colored status codes and formatted JSON
 
