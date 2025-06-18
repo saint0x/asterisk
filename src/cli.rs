@@ -26,7 +26,8 @@ fn format_help() -> String {
     help.push_str(&format!("  {} {} {}\n", "-b, --body".bright_green(), "<JSON>".bright_blue(), "Request body"));
     help.push_str(&format!("  {} {} {}\n", "-H, --headers".bright_green(), "<HEADERS>".bright_blue(), "HTTP headers (key:value,...)"));
     help.push_str(&format!("  {} {} {}\n", "-t, --token".bright_green(), "<TOKEN>".bright_blue(), "Bearer token"));
-    help.push_str(&format!("  {} {} {}\n", "-u, --url".bright_green(), "<URL>".bright_blue(), "Base URL [default: http://localhost:3000]"));
+    help.push_str(&format!("  {} {} {}\n", "-u, --url".bright_green(), "<URL>".bright_blue(), "Base URL (overrides config)"));
+    help.push_str(&format!("  {} {} {}\n", "-p, --profile".bright_green(), "<PROFILE>".bright_blue(), "Configuration profile"));
     help.push_str(&format!("  {} {}\n", "-v, --verbose".bright_green(), "Enable detailed output"));
     help.push_str(&format!("  {} {}\n\n", "-h, --help".bright_green(), "Show this help message"));
     
@@ -34,8 +35,10 @@ fn format_help() -> String {
     help.push_str(&format!("{}\n", "EXAMPLES:".bold().yellow()));
     help.push_str(&format!("  {} {}\n", "Basic request:".bold(), "asterisk users get"));
     help.push_str(&format!("  {} {}\n", "With body:".bold(), "asterisk sign-up post -b '{\"name\":\"john\"}'"));
-    help.push_str(&format!("  {} {}\n", "With token:".bold(), "asterisk users get -t 'mytoken'"));
-    help.push_str(&format!("  {} {}\n", "Custom URL:".bold(), "asterisk users get -u 'https://api.example.com'"));
+    help.push_str(&format!("  {} {}\n", "With profile:".bold(), "asterisk users get --profile staging"));
+    help.push_str(&format!("  {} {}\n", "Override URL:".bold(), "asterisk users get -u 'https://api.example.com'"));
+    help.push_str(&format!("  {} {}\n", "Init config:".bold(), "asterisk config init"));
+    help.push_str(&format!("  {} {}\n", "Show config:".bold(), "asterisk config show"));
     
     help
 }
@@ -51,13 +54,16 @@ fn format_help() -> String {
     after_help = ""
 )]
 pub struct Cli {
-    /// API endpoint to test
+    #[command(subcommand)]
+    pub command: Option<Commands>,
+
+    /// API endpoint to test (when not using subcommands)
     #[arg(value_name = "ENDPOINT")]
-    pub endpoint: String,
+    pub endpoint: Option<String>,
 
     /// HTTP method (GET, POST, PUT, etc.)
     #[arg(value_name = "METHOD")]
-    pub method: String,
+    pub method: Option<String>,
 
     /// JSON request body
     #[arg(short, long)]
@@ -71,9 +77,13 @@ pub struct Cli {
     #[arg(short, long)]
     pub token: Option<String>,
 
-    /// Base URL
-    #[arg(short, long, default_value = "http://localhost:3000")]
-    pub url: String,
+    /// Base URL (overrides config)
+    #[arg(short, long)]
+    pub url: Option<String>,
+
+    /// Configuration profile to use
+    #[arg(short, long)]
+    pub profile: Option<String>,
 
     /// Enable detailed output
     #[arg(short, long)]
@@ -94,14 +104,21 @@ impl Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// List available endpoints
-    List {
-        /// Filter by HTTP method
+    /// Configuration management
+    Config {
+        #[command(subcommand)]
+        action: ConfigAction,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum ConfigAction {
+    /// Show current configuration
+    Show {
+        /// Profile to show (defaults to current/default profile)
         #[arg(short, long)]
-        method: Option<String>,
+        profile: Option<String>,
     },
-    /// Show endpoint details
-    Info {
-        endpoint: String,
-    },
+    /// Initialize asterisk.config in current directory
+    Init,
 }
