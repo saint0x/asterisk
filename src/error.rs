@@ -13,6 +13,18 @@ pub enum AsteriskError {
     
     #[error("Invalid headers format")]
     InvalidHeaders,
+    
+    #[error("Configuration error: {0}")]
+    Config(String),
+    
+    #[error("Missing required environment variable: {0}")]
+    MissingEnvironmentVariable(String),
+    
+    #[error("Invalid environment variable: {0}")]
+    InvalidEnvironmentVariable(String),
+    
+    #[error("TOML parsing error: {0}")]
+    TomlParsing(#[from] toml::de::Error),
 }
 
 fn format_http_error(err: &ReqwestError) -> String {
